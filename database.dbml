@@ -1,0 +1,75 @@
+
+Project universet_v2 {
+  database_type: 'PostgreSQL'
+  Note: 'Universet v2'
+}
+
+Table User {
+    id int [pk, increment]
+    username text [unique, not null]
+    email text [unique, not null]
+}
+
+Table Group {
+    id int [pk, increment]
+    name text
+}
+
+Table UserGroup {
+    userId int [ref: < User.id]
+    groupId int [ref: < Group.id]
+    indexes {
+        (userID, groupId) [pk]
+    }
+}
+
+Enum FlashcardType {
+    text
+    multipleChoice
+    radioChoice
+}
+
+Table Flashcard {
+    id int [pk, increment]
+    type FlashcardType
+    desciption text
+    hint text
+    createdBy int [ref: < User.id]
+}
+
+Table TextFlashcardAnswer {
+    flashcardId int [pk, ref: - Flashcard.id]
+    answer text [not null]
+}
+
+Table MultipleChoiceFlashcardAnswer {
+    flashcardId int [pk, ref: > Flashcard.id]
+    option text [default: null]
+    isCorrect bool
+
+    indexes {
+        (flashcardId, option) [pk]
+    }
+}
+
+Table RadioChoiceFlashcardAnswer {
+    flashcardId int [pk, ref: > Flashcard.id]
+    option text [default: null]
+    isCorrect bool
+
+    indexes {
+        (flashcardId, option) [pk]
+    }
+}
+
+Table FlashcardRatings {
+    id int [pk, increment]
+    flashcardId int [ref: > Flashcard.id]
+    userId int [ref: - User.id]
+    difficulty float
+    like bool [default: null, note: "Null for no vote, 1 for upvote 0 for downvote"]
+    indexes {
+        (userId, flashcardId) [unique]
+    }
+}
+
