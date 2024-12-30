@@ -11,12 +11,22 @@ services:
       # - api
     ports:
       - "3000:3000"
-  # api:
-  #   build:
-  #     context: ./api
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "5001:5000"
+  api:
+    build:
+      context: ./api
+      target: dev
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - NEXT_WEBPACK_USEPOLLING=1
+      - WATCHPACK_POLLING=true
+    env_file:
+      - ./envFiles/.docker.env
+    command: sh -c "npm i && npm run ${API_RUN_SCRIPT}"
+
   frontend:
     build: 
       context: ./frontend
@@ -25,9 +35,8 @@ services:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
-    # ports:
-    #  - "5000:3000"
     env_file:
+      - ./envFiles/.docker.env
       - ./envFiles/.frontend.env
     environment:
       - CHOKIDAR_USEPOLLING=true
@@ -35,6 +44,8 @@ services:
       - WATCHPACK_POLLING=true
 
     command: sh -c "npm i && npm run ${FRONTEND_RUN_SCRIPT}"
+    depends_on:
+      - api
   # auth:
   #   build:
   #     context: ./auth
