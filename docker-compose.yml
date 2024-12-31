@@ -8,7 +8,7 @@ services:
     command: ["nginx", "-g", "daemon off;"]
     depends_on:
       - frontend
-      # - api
+      - api
     ports:
       - "3000:3000"
   api:
@@ -25,7 +25,10 @@ services:
       - WATCHPACK_POLLING=true
     env_file:
       - ./envFiles/.docker.env
+      - ./envFiles/.env
     command: sh -c "npm i && npm run ${API_RUN_SCRIPT}"
+    depends_on:
+      - auth
 
   frontend:
     build: 
@@ -56,6 +59,7 @@ services:
       - ./auth/src:/app
       - /app/venv
     env_file:
+      - ./envFiles/.env
       - ./envFiles/.auth.env
   database:
     image: postgres
