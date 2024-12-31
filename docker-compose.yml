@@ -46,13 +46,17 @@ services:
     command: sh -c "npm i && npm run ${FRONTEND_RUN_SCRIPT}"
     depends_on:
       - api
-  # auth:
-  #   build:
-  #     context: ./auth
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "5002:5000"
 
+  auth:
+    build:
+      context: ./auth
+      target: dev
+    command: sh -c "python main.py"
+    volumes:
+      - ./auth/src:/app
+      - /app/venv
+    env_file:
+      - ./envFiles/.auth.env
   database:
     image: postgres
     restart: always
