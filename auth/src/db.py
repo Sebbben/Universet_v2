@@ -1,5 +1,6 @@
 import psycopg
 from psycopg_pool import ConnectionPool
+import os
 
 class Database:
     def __init__(self, db_config):
@@ -7,13 +8,13 @@ class Database:
         self.connection_pool = None
 
     def initialize_pool(self):
-        self.connection_pool = ConnectionPool(
-            user=self.db_config['user'],
-            password=self.db_config['password'],
-            host=self.db_config['host'],
-            port=self.db_config['port'],
-            database=self.db_config['database']
-        )
+        self.connection_pool = ConnectionPool({
+            "user": self.db_config['user'],
+            "password": self.db_config['password'],
+            "host": self.db_config['host'],
+            "port": self.db_config['port'],
+            "database": self.db_config['database']
+        })
 
     def get_connection(self):
         if not self.connection_pool:
@@ -43,23 +44,18 @@ class Database:
     def connection(self):
         return self.ConnectionContext(self)
 
+
+DB = None
 # Example usage
-if __name__ == "__main__":
+def init():
+
     db_config = {
-        'user': 'your_username',
-        'password': 'your_password',
-        'host': 'localhost',
-        'port': '5432',
-        'database': 'your_database'
+        'user': os.getenv("POSTGRES_USER"),
+        'password': os.getenv("POSTGRES_PASSWORD"),
+        'host': os.getenv("DATABASE_HOST"),
+        'port': os.getenv("DATABASE_PORT"),
+        'database': os.getenv("POSTGRES_DB")
     }
 
-    db = Database(db_config)
-    db.initialize_pool()
-
-    # Use the connection with a context manager
-    with db.connection() as conn:
-        # Use the connection
-        # ...
-
-    # Close all connections when done
-    db.close_all_connections()
+    DB = Database(db_config)
+    DB.initialize_pool()
