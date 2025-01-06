@@ -11,6 +11,8 @@ services:
       - api
     ports:
       - "3000:3000"
+    networks:
+      - main
 
   api:
     build:
@@ -27,8 +29,11 @@ services:
     env_file:
       - ./envFiles/.env
     command: sh -c "npm i && npm run ${API_RUN_SCRIPT}"
-    depends_on:
-      - auth
+    # depends_on:
+    #   - auth
+    networks:
+      - main
+
 
   frontend:
     build: 
@@ -48,24 +53,64 @@ services:
     command: sh -c "npm i && npm run ${FRONTEND_RUN_SCRIPT}"
     depends_on:
       - api
+    networks:
+      - main
 
-  auth:
-    build:
-      context: ./auth
-      target: dev
-    command: sh -c "python main.py"
-    volumes:
-      - ./auth/src:/app
-      - /app/venv
-    env_file:
-      - ./envFiles/.env
-  
   database:
     image: postgres
     restart: always
     shm_size: 128mb
     env_file:
       - ./envFiles/.env
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+    networks:
+      - main
+  ### Auth service
+  auth_api:
+    build:
+      context: ./auth/api
+      target: dev
+    command: sh -c "python main.py"
+    volumes:
+      - ./auth/api/src:/app
+      - /app/venv
+    env_file:
+      - ./envFiles/.env.auth
+    networks:
+      - main
+  auth_db:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    env_file:
+      - ./envFiles/.env.auth
+    volumes:
+      - ./auth/db:/docker-entrypoint-initdb.d
+    networks:
+      - main
+  auth_frontend:
+    build:
+      context: ./auth/frontend
+      target: dev
+    volumes:
+      - ./auth/frontend:/app
+      - /app/node_modules
+      - /app/.next
+    env_file:
+      - ./envFiles/.env.auth
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - NEXT_WEBPACK_USEPOLLING=1
+      - WATCHPACK_POLLING=true
+    command: sh -c "npm i && npm run ${FRONTEND_RUN_SCRIPT}"
+    depends_on:
+      - auth_api
+    networks:
+      - main
 
+networks:
+  main:
+    driver: bridge
 volumes:
   frontend_node_modules:
