@@ -56,4 +56,4 @@ def register():
             cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (json["username"], hashed_password))
             conn.commit()
 
-    return "Register"
+    return requestDefs.created("User created")
