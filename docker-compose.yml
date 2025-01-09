@@ -34,9 +34,8 @@ services:
     networks:
       - main
 
-
   frontend:
-    build: 
+    build:
       context: ./frontend
       target: dev
     volumes:
@@ -89,6 +88,8 @@ services:
       - ./auth/db:/docker-entrypoint-initdb.d
     networks:
       - main
+    ports:
+      - "5432:5432"
   auth_frontend:
     build:
       context: ./auth/frontend

@@ -6,28 +6,33 @@ class Database:
     def __init__(self, db_config):
         self.db_config = db_config
         self.connection_pool = None
+        self.open_connections = []
 
     def initialize_pool(self):
-        self.connection_pool = ConnectionPool({
-            "user": self.db_config['user'],
-            "password": self.db_config['password'],
-            "host": self.db_config['host'],
-            "port": self.db_config['port'],
-            "database": self.db_config['database']
-        })
+        connection_string = (
+            f"postgresql://{self.db_config['user']}:{self.db_config['password']}@"+
+            f"{self.db_config['host']}:{self.db_config['port']}/"+
+            f"{self.db_config['database']}"
+        )
+        self.connection_pool = ConnectionPool(conninfo=connection_string)
 
     def get_connection(self):
         if not self.connection_pool:
             self.initialize_pool()
-        return self.connection_pool.getconn()
+        new_connection = self.connection_pool.getconn()
+        self.open_connections.append(new_connection)
+        return new_connection
 
     def release_connection(self, connection):
         if self.connection_pool:
+            self.open_connections.remove(connection)
             self.connection_pool.putconn(connection)
 
     def close_all_connections(self):
         if self.connection_pool:
-            self.connection_pool.closeall()
+            for conn in self.open_connections:
+                self.connection_pool.putconn(conn)
+            self.connection_pool.close()
 
     class ConnectionContext:
         def __init__(self, db_instance):
@@ -48,6 +53,7 @@ class Database:
 DB = None
 # Example usage
 def init():
+    global DB
 
     db_config = {
         'user': os.getenv("POSTGRES_USER"),
@@ -59,3 +65,18 @@ def init():
 
     DB = Database(db_config)
     DB.initialize_pool()
+
+
+def getDB():
+    global DB
+
+    if not DB:
+        init()
+    return DB
+
+def tearDownDB():
+    global DB
+
+    if not DB: return
+    
+    DB.close_all_connections()

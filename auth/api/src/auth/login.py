@@ -4,4 +4,6 @@ def login():
     username = data.get('username')
     password = data.get('password')
 
-    return username, password
+    print(f"Username: {username}, Password: {password}", flush=True)
+
+    return "username, password"
