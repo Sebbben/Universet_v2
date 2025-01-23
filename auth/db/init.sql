@@ -1,3 +1,7 @@
+CREATE DATABASE auth;
+
+\c auth
+
 CREATE TABLE clients (
     client_id VARCHAR(255) PRIMARY KEY,
     client_secret VARCHAR(255) NOT NULL,

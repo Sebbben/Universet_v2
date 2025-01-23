@@ -75,7 +75,7 @@ services:
       - ./auth/api/src:/app
       - /app/venv
     env_file:
-      - ./envFiles/.env.auth
+      - ./envFiles/.auth.env
     networks:
       - main
   auth_db:
@@ -83,7 +83,7 @@ services:
     restart: always
     shm_size: 128mb
     env_file:
-      - ./envFiles/.env.auth
+      - ./envFiles/.auth.env
     volumes:
       - ./auth/db:/docker-entrypoint-initdb.d
     networks:
@@ -99,7 +99,7 @@ services:
       - /app/node_modules
       - /app/.next
     env_file:
-      - ./envFiles/.env.auth
+      - ./envFiles/.auth.env
     environment:
       - CHOKIDAR_USEPOLLING=true
       - NEXT_WEBPACK_USEPOLLING=1

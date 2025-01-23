@@ -14,6 +14,8 @@ class Database:
             f"{self.db_config['host']}:{self.db_config['port']}/"+
             f"{self.db_config['database']}"
         )
+
+        print(connection_string, flush=True)
         self.connection_pool = ConnectionPool(conninfo=connection_string)
 
     def get_connection(self):
@@ -60,7 +62,7 @@ def init():
         'password': os.getenv("POSTGRES_PASSWORD"),
         'host': os.getenv("DATABASE_HOST"),
         'port': os.getenv("DATABASE_PORT"),
-        'database': os.getenv("POSTGRES_DB")
+        'database': os.getenv("AUTH_DB")
     }
 
     DB = Database(db_config)
