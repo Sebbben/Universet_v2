@@ -1,3 +1,7 @@
+"use client"
+
+import { redirectToAuthLogin } from "@/app/utils/auth";
+import { useRouter } from "next/navigation";
 import {
   Navbar,
   NavbarBrand,
@@ -7,6 +11,14 @@ import {
 } from "@nextui-org/react";
 
 export const NavBar = () => {
+
+  const router = useRouter();
+
+  const handleLogin = (e) => {
+    e.preventDefault(true);
+    redirectToAuthLogin(router)
+  }
+
   return (
     <Navbar isBordered variant="sticky">
       <NavbarBrand>
@@ -33,7 +45,8 @@ export const NavBar = () => {
         </NavbarItem>
         <NavbarItem>
           <Link
-            href="http://auth.localhost:3000/login"
+            href=""
+            onClick={handleLogin}
             className="text-lg text-gray-700 hover:text-gray-900"
           >
             Login

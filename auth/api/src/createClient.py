@@ -1,15 +1,16 @@
 import argparse
 import json
 import psycopg
+import os
 
 def create_client(secret, name, access_token_lifetime, refresh_token_lifetime, redirect_uris=None, scopes=None, grant_types=None):
     try:
         connection = psycopg.connect(
-            dbname="auth",
-            user="auth",
-            password="F=cxs1wkd2w4K=wj11.oF.lsA~q?5(49-)Bc8o=2e#h9*",
-            host="auth_db",
-            port="5432"
+            dbname=os.getenv("AUTH_DB"),
+            user=os.getenv("POSTGRES_USER"),
+            password=os.getenv("POSTGRES_PASSWORD"),
+            host=os.getenv("DATABASE_HOST"),
+            port=os.getenv("DATABASE_PORT")
         )
         cursor = connection.cursor()
 

@@ -1,9 +1,10 @@
 "use client";
+import { makeParamsString } from "@/utils/general";
 import { Form, Input, Checkbox, Button, Link } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function RegisterForm() {
+export default function RegisterForm({ params }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState(""); // New state for confirm password
   const [errors, setErrors] = useState({});
@@ -100,6 +101,11 @@ export default function RegisterForm() {
       .catch((err) => console.error);
   };
 
+  const handleRedirectLogin = (e) => {
+    e.preventDefault(true);
+    router.push("/login?"+makeParamsString(params))
+  };
+
   return (
     <Form
       className="w-full justify-center items-center space-y-4"
@@ -179,7 +185,7 @@ export default function RegisterForm() {
         <div className="flex justify-center align-items-center text-sm">
           <p className="flex items-center">
             Already have an account? &nbsp;
-            <Link className="text-small" href="/login">
+            <Link className="text-small" href="/login" onClick={handleRedirectLogin}>
               Login here
             </Link>
           </p>

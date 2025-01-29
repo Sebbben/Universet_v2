@@ -78,6 +78,8 @@ services:
       - ./envFiles/.auth.env
     networks:
       - main
+    depends_on:
+      - auth_db
   auth_db:
     image: postgres
     restart: always

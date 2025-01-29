@@ -5,7 +5,7 @@ CREATE DATABASE auth;
 CREATE TABLE clients (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     secret VARCHAR(255) NOT NULL,
-    name UNIQUE VARCHAR(255) NOT NULL,
+    name VARCHAR(255) UNIQUE NOT NULL,
     access_token_lifetime INTEGER NOT NULL DEFAULT 3600,
     refresh_token_lifetime INTEGER NOT NULL DEFAULT 1209600
 );
