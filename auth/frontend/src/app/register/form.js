@@ -82,13 +82,25 @@ export default function RegisterForm({ params }) {
     // Clear errors and submit
     setErrors({});
 
+    const registerFormData = {
+      username: data.username,
+      password: data.password,
+      passwordConfirm: data.confirmPassword,
+      terms: data.terms,
+      clientId: params.client_id,
+      responseType: params.response_type,
+      redirectUri: params.redirect_uri,
+      state: params.state
+    };
+
+
     // Submit data to api endpoint
     fetch("/api/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(registerFormData),
     })
       .then((res) => res.json())
       .then((res) => {

@@ -58,13 +58,22 @@ export default function LoginForm({params}) {
     // Clear errors and submit
     setErrors({});
 
+    const loginFormData = {
+      username: data.username,
+      password: data.password,
+      clientId: params.client_id,
+      responseType: params.response_type,
+      redirectUri: params.redirect_uri,
+      state: params.state
+    };
+
     // Submit data to api endpoint
     fetch("/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(loginFormData),
     })
       .then((res) => res.json())
       .then((res) => {
