@@ -1,1 +1,1 @@
-docker compose --env-file=./envFiles/.env up --build
+docker compose --env-file ./envFiles/.env up --build
