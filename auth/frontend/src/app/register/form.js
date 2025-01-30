@@ -85,11 +85,11 @@ export default function RegisterForm({ params }) {
     const registerFormData = {
       username: data.username,
       password: data.password,
-      passwordConfirm: data.confirmPassword,
+      confirm_password: data.confirmPassword,
       terms: data.terms,
-      clientId: params.client_id,
-      responseType: params.response_type,
-      redirectUri: params.redirect_uri,
+      client_id: params.client_id,
+      response_type: params.response_type,
+      redirect_uri: params.redirect_uri,
       state: params.state
     };
 
@@ -102,12 +102,16 @@ export default function RegisterForm({ params }) {
       },
       body: JSON.stringify(registerFormData),
     })
-      .then((res) => res.json())
+      .then((res) => {
+        return res.json()
+      })
       .then((res) => {
         if (res.error) {
           console.error(res.error);
         } else {
-          router.push("/login");
+          if (res.redirect_uri) {
+            router.push(res.redirect_uri)
+          }
         }
       })
       .catch((err) => console.error);

@@ -64,3 +64,9 @@ def method_not_allowed(message="Method not allowed"):
         "message": message
     }
     return jsonify(response), 405
+
+def redirectTemp(url):
+    response = {
+        "redirect_uri": url
+    }
+    return jsonify(response), 302

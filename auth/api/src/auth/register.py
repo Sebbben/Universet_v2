@@ -1,11 +1,12 @@
-from flask import request
+from flask import request, redirect
 import requestDefs
 from db import getDB
 import bcrypt
 import re
+import utils
 
 
-def is_password_strong(password):
+def isValidPassword(password):
     """
     A strong password:
     - At least 9 characters
@@ -26,34 +27,50 @@ def is_password_strong(password):
         return False
     return True
 
+def hasRequiredRegisterParams(params):
+    return all([
+        field in params for field in [
+            "username", 
+            "password", 
+            "confirm_password", 
+            "terms"
+        ]
+    ])
+
+def isPasswordMatch(password, confirmPassword):
+    return password == confirmPassword
+
+def isTermsAccepted(terms):
+    return terms == "true"
+
+def isValidRegisterForm(params):
+    return hasRequiredRegisterParams(params) and \
+    isValidPassword(params["password"]) and \
+    isPasswordMatch(params["password"], params["confirm_password"]) and \
+    isTermsAccepted(params["terms"])
+
 def register():
     if request.method != "POST": return requestDefs.method_not_allowed()
     json = request.get_json()
     
     if not json: return requestDefs.bad_request("Request body must be JSON")
 
-    required_fields = ["username", "password", "confirmPassword", "terms"]
-    for field in required_fields:
-        if field not in json:
-            return requestDefs.bad_request(f"Missing required field: {field}")
+    if not utils.OAuth.isValidGrantReqest(json):
+        return requestDefs.bad_request("Invalid grant request")
 
-    if json["password"] != json["confirmPassword"]:
-        return requestDefs.bad_request("Passwords do not match")
+    if not isValidRegisterForm(json):
+        return requestDefs.bad_request("Bad register form")
 
-    if not json["terms"]:     
-        return requestDefs.bad_request("You must accept the terms and conditions")
-    
-    if not is_password_strong(json["password"]):
-        return requestDefs.bad_request("Password is not strong enough")
-
-    with getDB().connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM users WHERE username = %s", (json["username"],))
-            if cur.fetchone():
-                return requestDefs.conflict("Username already exists")
+    # with getDB().connection() as conn:
+    #     with conn.cursor() as cur:
+    #         cur.execute("SELECT * FROM users WHERE username = %s", (json["username"],))
+    #         if cur.fetchone():
+    #             return requestDefs.conflict("Username already exists")
             
-            hashed_password = bcrypt.hashpw(json["password"].encode(), bcrypt.gensalt())
-            cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (json["username"], hashed_password))
-            conn.commit()
+    #         hashed_password = bcrypt.hashpw(json["password"].encode(), bcrypt.gensalt())
+    #         cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (json["username"], hashed_password))
+    #         conn.commit()
 
-    return requestDefs.created("User created")
+    code = "rgeionriOnuiLBuG"
+
+    return requestDefs.redirectTemp(utils.addParamsToUriString(json["redirect_uri"], {"code": code}))
