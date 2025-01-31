@@ -69,7 +69,7 @@ def init():
     DB.initialize_pool()
 
 
-def getDB():
+def getDB() -> Database:
     global DB
 
     if not DB:

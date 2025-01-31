@@ -1,11 +1,28 @@
 from urllib.parse import urlparse, urlunparse, urlencode
+from db import getDB
 
 class OAuth:
     def isValidClient(client_id): 
-        return True
+        db = getDB()
+        with db.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT id FROM clients WHERE id=%s", (client_id,))
+                res = cursor.fetchall()
+                print("Get client id res: ", res)
+                if len(res) != 1:
+                    return False
+                else:
+                    return True
 
     def isValidRedirectUri(client_id, redirect_uri):
-        return True
+        # TODO: Do url validation before check
+        db = getDB()
+        with db.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT redirect_uri FROM client_redirect_uris WHERE client_id = %s AND redirect_uri = %s", (client_id, redirect_uri))
+                res = cursor.fetchall()
+
+                return len(res) == 1
 
     def hasRequiredParams(params):
         return all([param in params for param in ["client_id", "redirect_uri", "response_type", "state"]])
@@ -21,8 +38,6 @@ class OAuth:
     
 
 def makeUrlParamsString(params):
-    
-
     return urlencode(params)
 
 def addParamsToUriString(url, params): # TODO: Check for url safety

@@ -73,4 +73,6 @@ def register():
 
     code = "rgeionriOnuiLBuG"
 
-    return requestDefs.redirectTemp(utils.addParamsToUriString(json["redirect_uri"], {"code": code}))
+    extraParams = {"code": code}
+
+    return requestDefs.redirectTemp(utils.addParamsToUriString(json["redirect_uri"], extraParams))
