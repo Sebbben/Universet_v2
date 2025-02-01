@@ -15,11 +15,10 @@ class Database:
             f"{self.db_config['database']}"
         )
 
-        print(connection_string, flush=True)
         self.connection_pool = ConnectionPool(conninfo=connection_string)
 
-    def get_connection(self):
-        if not self.connection_pool:
+    def _get_connection(self):
+        if not self.connection_pool or self.connection_pool.closed:
             self.initialize_pool()
         new_connection = self.connection_pool.getconn()
         self.open_connections.append(new_connection)
@@ -34,6 +33,7 @@ class Database:
         if self.connection_pool:
             for conn in self.open_connections:
                 self.connection_pool.putconn(conn)
+            self.open_connections = []
             self.connection_pool.close()
 
     class ConnectionContext:
@@ -42,7 +42,7 @@ class Database:
             self.conn = None
 
         def __enter__(self):
-            self.conn = self.db_instance.get_connection()
+            self.conn = self.db_instance._get_connection()
             return self.conn
 
         def __exit__(self, exc_type, exc_val, exc_tb):

@@ -4,7 +4,7 @@ from db import getDB
 class OAuth:
     def isValidClient(client_id): 
         db = getDB()
-        with db.get_connection() as conn:
+        with db.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("SELECT id FROM clients WHERE id=%s", (client_id,))
                 res = cursor.fetchall()
@@ -17,7 +17,7 @@ class OAuth:
     def isValidRedirectUri(client_id, redirect_uri):
         # TODO: Do url validation before check
         db = getDB()
-        with db.get_connection() as conn:
+        with db.connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("SELECT redirect_uri FROM client_redirect_uris WHERE client_id = %s AND redirect_uri = %s", (client_id, redirect_uri))
                 res = cursor.fetchall()

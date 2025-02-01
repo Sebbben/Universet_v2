@@ -61,15 +61,15 @@ def register():
     if not isValidRegisterForm(json):
         return requestDefs.bad_request("Bad register form")
 
-    # with getDB().connection() as conn:
-    #     with conn.cursor() as cur:
-    #         cur.execute("SELECT * FROM users WHERE username = %s", (json["username"],))
-    #         if cur.fetchone():
-    #             return requestDefs.conflict("Username already exists")
+    with getDB().connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM users WHERE username = %s", (json["username"],))
+            if cur.fetchone():
+                return requestDefs.conflict("Username already exists")
             
-    #         hashed_password = bcrypt.hashpw(json["password"].encode(), bcrypt.gensalt())
-    #         cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (json["username"], hashed_password))
-    #         conn.commit()
+            hashed_password = bcrypt.hashpw(json["password"].encode(), bcrypt.gensalt())
+            cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (json["username"], hashed_password))
+            conn.commit()
 
     code = "rgeionriOnuiLBuG"
 
