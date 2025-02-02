@@ -67,12 +67,12 @@ def register():
             if cur.fetchone():
                 return requestDefs.conflict("Username already exists")
             
-            hashed_password = bcrypt.hashpw(json["password"].encode(), bcrypt.gensalt())
+            hashed_password = bcrypt.hashpw(json["password"].encode(), bcrypt.gensalt()).decode()
             cur.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (json["username"], hashed_password))
             conn.commit()
 
-    code = "rgeionriOnuiLBuG"
+    code = utils.OAuth.generateAuthenticationCode()
 
-    extraParams = {"code": code}
+    extraParams = {"code": code} # TODO: Pass params like state through the redirect
 
     return requestDefs.redirectTemp(utils.addParamsToUriString(json["redirect_uri"], extraParams))

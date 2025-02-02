@@ -35,6 +35,10 @@ class OAuth:
         OAuth.isValidClient(params["client_id"]) and \
         OAuth.isValidRedirectUri(params["client_id"], params["redirect_uri"]) and \
         OAuth.isValidResponseType(params["response_type"])
+
+
+    def generateAuthenticationCode():
+        return "grnejbi"
     
 
 def makeUrlParamsString(params):

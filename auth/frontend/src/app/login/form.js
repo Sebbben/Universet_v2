@@ -9,61 +9,16 @@ export default function LoginForm({params}) {
   const [errors, setErrors] = useState({});
   const router = useRouter();
 
-  // Real-time password validation
-  // TODO: update with better validation
-  const getPasswordError = (value) => {
-    if (value == "") return null;
-    if (value.length < 4) {
-      return "Password must be 4 characters or more";
-    }
-    if ((value.match(/[A-Z]/g) || []).length < 1) {
-      return "Password needs at least 1 uppercase letter";
-    }
-    if ((value.match(/[^a-z]/gi) || []).length < 1) {
-      return "Password needs at least 1 symbol";
-    }
-
-    return null;
-  };
-
   const onSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(true);
     const data = Object.fromEntries(new FormData(e.currentTarget));
-
-    // Custom validation checks
-    const newErrors = {};
-
-    // Password validation
-    const passwordError = getPasswordError(data.password);
-
-    if (passwordError) {
-      newErrors.password = passwordError;
-    }
-
-    // Username validation
-    if (data.name === "admin") {
-      newErrors.name = "Nice try! Choose a different username";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
-    if (data.terms !== "true") {
-      setErrors({ terms: "Please accept the terms" });
-      return;
-    }
-
-    // Clear errors and submit
-    setErrors({});
 
     const loginFormData = {
       username: data.username,
       password: data.password,
-      clientId: params.client_id,
-      responseType: params.response_type,
-      redirectUri: params.redirect_uri,
+      client_id: params.client_id,
+      response_type: params.response_type,
+      redirect_uri: params.redirect_uri,
       state: params.state
     };
 
@@ -79,6 +34,10 @@ export default function LoginForm({params}) {
       .then((res) => {
         if (res.error) {
           console.error(res.error);
+        } else {
+          if (res.redirect_uri) {
+            router.push(res.redirect_uri)
+          }
         }
       })
       .catch((err) => console.error);
@@ -113,8 +72,6 @@ export default function LoginForm({params}) {
 
         <Input
           isRequired
-          errorMessage={getPasswordError(password)}
-          isInvalid={getPasswordError(password) !== null}
           label="Password"
           labelPlacement="outside"
           name="password"
@@ -124,26 +81,7 @@ export default function LoginForm({params}) {
           onValueChange={setPassword}
         />
 
-        <Checkbox
-          isRequired
-          classNames={{
-            label: "text-small",
-          }}
-          isInvalid={!!errors.terms}
-          name="terms"
-          validationBehavior="aria"
-          value="true"
-          onValueChange={() =>
-            setErrors((prev) => ({ ...prev, terms: undefined }))
-          }
-        >
-          I agree to the terms and conditions
-        </Checkbox>
-
-        {errors.terms && (
-          <span className="text-danger text-small">{errors.terms}</span>
-        )}
-
+        
         <div className="flex gap-4">
           <Button className="w-full" color="primary" type="submit">
             Submit
